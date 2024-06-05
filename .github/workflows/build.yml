@@ -11,16 +11,16 @@ env:
 
 jobs:
   push-ghcr:
-    name: Build and push ucore-kmods image
+    name: Build and push image containing zfs and kernel rpms
     runs-on: ubuntu-22.04
     permissions:
       contents: read
       packages: write
       id-token: write
-    strategy:
-      fail-fast: false
-      matrix:
-        coreos_version: [stable, testing]
+      #strategy:
+      #  fail-fast: false
+      #  matrix:
+      #    coreos_version: [stable, testing]
     steps:
       # Checkout push-to-registry action GitHub repository
       - name: Checkout Push to Registry action
