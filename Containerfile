@@ -1,6 +1,6 @@
 FROM fedora:40
 
-COPY --from=ghcr.io/ublue-os/ucore-kmods:stable /rpms/ /tmp/rpms
+COPY --from=ghcr.io/ublue-os/ucore-kmods:stable /rpms/ /rpms
 
 RUN dnf install -y koji \
   && mkdir /kernel
