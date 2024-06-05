@@ -1,9 +1,9 @@
-name: build-ucore
+name: build-sb-zfs-kernel
 on:
   pull_request:
   merge_group:
   schedule:
-    - cron: '15 23 * * *' # 11:15PM UTC everyday (approx 1 hours after coreos images publish)
+    - cron: '17 23 * * *'
   workflow_dispatch:
 env:
     IMAGE_NAME: sb-zfs-kernel
