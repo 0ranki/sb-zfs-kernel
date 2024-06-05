@@ -1,0 +1,56 @@
+name: build-ucore
+on:
+  pull_request:
+  merge_group:
+  schedule:
+    - cron: '15 23 * * *' # 11:15PM UTC everyday (approx 1 hours after coreos images publish)
+  workflow_dispatch:
+env:
+    IMAGE_NAME: sb-zfs-kernel
+    IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  push-ghcr:
+    name: Build and push ucore-kmods image
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        coreos_version: [stable, testing]
+    steps:
+      # Checkout push-to-registry action GitHub repository
+      - name: Checkout Push to Registry action
+        uses: actions/checkout@v4
+
+      # Workaround bug where capital letters in your GitHub username make it impossible to push to GHCR.
+      # https://github.com/macbre/push-to-ghcr/issues/12
+      - name: Lowercase Registry
+        id: registry_case
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{ env.IMAGE_REGISTRY }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build/push image using docker buildx action
+      - name: Build and Push Image
+        id: build_image
+        uses: docker/build-push-action@v5
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          context: .
+          file: ./Containerfile
+          #build-args: |
+          #  SOURCE_IMAGE=${{ env.SOURCE_IMAGE }}
+          #  COREOS_VERSION=${{ matrix.coreos_version }}
+          tags: latest
